@@ -67,11 +67,11 @@ const checkOverflowVisible = function checkOverflowVisible(component, parent) {
   const offsetTop = top - intersectionTop; // element's top relative to intersection
 
   const offsets = Array.isArray(component.props.offset) ?
-                component.props.offset :
-                [component.props.offset, component.props.offset]; // Be compatible with previous API
+    component.props.offset :
+    [component.props.offset, component.props.offset]; // Be compatible with previous API
 
   return (offsetTop - offsets[0] <= intersectionHeight) &&
-         (offsetTop + height + offsets[1] >= 0);
+    (offsetTop + height + offsets[1] >= 0);
 };
 
 /**
@@ -97,11 +97,11 @@ const checkNormalVisible = function checkNormalVisible(component) {
   const windowInnerHeight = window.innerHeight || document.documentElement.clientHeight;
 
   const offsets = Array.isArray(component.props.offset) ?
-                component.props.offset :
-                [component.props.offset, component.props.offset]; // Be compatible with previous API
+    component.props.offset :
+    [component.props.offset, component.props.offset]; // Be compatible with previous API
 
   return (top - offsets[0] <= windowInnerHeight) &&
-         (top + elementHeight + offsets[1] >= 0);
+    (top + elementHeight + offsets[1] >= 0);
 };
 
 
@@ -119,12 +119,12 @@ const checkVisible = function checkVisible(component) {
 
   const parent = scrollParent(node);
   const isOverflow = component.props.overflow &&
-                     parent !== node.ownerDocument &&
-                     parent !== document &&
-                     parent !== document.documentElement;
+    parent !== node.ownerDocument &&
+    parent !== document &&
+    parent !== document.documentElement;
   const visible = isOverflow ?
-                  checkOverflowVisible(component, parent) :
-                  checkNormalVisible(component);
+    checkOverflowVisible(component, parent) :
+    checkNormalVisible(component);
   if (visible) {
     // Avoid extra render if previously is visible
     if (!component.visible) {
@@ -134,11 +134,17 @@ const checkVisible = function checkVisible(component) {
 
       component.visible = true;
       component.forceUpdate();
+      setTimeout(() => {
+        component.onContentVisible(component);
+      }, 0);
     }
   } else if (!(component.props.once && component.visible)) {
     component.visible = false;
     if (component.props.unmountIfInvisible) {
       component.forceUpdate();
+      setTimeout(() => {
+        component.onContentVisible(component);
+      }, 0);
     }
   }
 };
@@ -178,6 +184,7 @@ class LazyLoad extends Component {
   }
 
   componentDidMount() {
+    this.onContentVisible = this.props.onContentVisible;
     // It's unlikely to change delay type on the fly, this is mainly
     // designed for tests
     let scrollport = window;
@@ -201,13 +208,13 @@ class LazyLoad extends Component {
     if (!finalLazyLoadHandler) {
       if (this.props.debounce !== undefined) {
         finalLazyLoadHandler = debounce(lazyLoadHandler, typeof this.props.debounce === 'number' ?
-                                                         this.props.debounce :
-                                                         300);
+          this.props.debounce :
+          300);
         delayType = 'debounce';
       } else if (this.props.throttle !== undefined) {
         finalLazyLoadHandler = throttle(lazyLoadHandler, typeof this.props.throttle === 'number' ?
-                                                         this.props.throttle :
-                                                         300);
+          this.props.throttle :
+          300);
         delayType = 'throttle';
       } else {
         finalLazyLoadHandler = lazyLoadHandler;
@@ -270,10 +277,10 @@ class LazyLoad extends Component {
 
   render() {
     return this.visible ?
-           this.props.children :
-             this.props.placeholder ?
-                this.props.placeholder :
-                <div style={{ height: this.props.height }} className="lazyload-placeholder" />;
+      this.props.children :
+      this.props.placeholder ?
+        this.props.placeholder :
+        <div style={{ height: this.props.height }} className="lazyload-placeholder" />;
   }
 }
 
@@ -289,7 +296,8 @@ LazyLoad.propTypes = {
   debounce: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
   placeholder: PropTypes.node,
   scrollContainer: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  unmountIfInvisible: PropTypes.bool
+  unmountIfInvisible: PropTypes.bool,
+  onContentVisible: PropTypes.func
 };
 
 LazyLoad.defaultProps = {
