@@ -142,9 +142,6 @@ const checkVisible = function checkVisible(component) {
     component.visible = false;
     if (component.props.unmountIfInvisible) {
       component.forceUpdate();
-      setTimeout(() => {
-        component.onContentVisible(component);
-      }, 0);
     }
   }
 };
