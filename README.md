@@ -1,7 +1,6 @@
 # Note
 
-This project is now currently maintained by 
-[@ameerthehacker](https://github.com/ameerthehacker), please reach out to him on any issues or help.
+This project is forked but not updated, i needed onContentVisible callback wich was removed in latest versions.
 
 ----
 
